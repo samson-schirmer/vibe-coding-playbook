@@ -36,6 +36,14 @@ Copying Superpowers skills into this repo would create a stale fork of a fast-mo
 
 Install Superpowers from the Codex plugin marketplace when available.
 
+Verified local install on 2026-07-06:
+
+- Codex plugin cache path: `~/.codex/plugins/cache/openai-curated-remote/superpowers/5.1.4`
+- Installed plugin version: `5.1.4`
+- Upstream repository version inspected separately: `6.1.1`
+
+Treat upstream docs as directional when the installed marketplace version lags. Check the installed skill files before relying on exact workflow wording.
+
 For best results with Superpowers subagent workflows, Codex should have multi-agent support enabled:
 
 ```toml
