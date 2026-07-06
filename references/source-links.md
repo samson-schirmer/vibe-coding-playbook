@@ -15,3 +15,5 @@
 - Bklit UI: https://bklit.com/
 - Bklit UI GitHub: https://github.com/bklit/bklit-ui
 - Manus: https://manus.im/app
+- Superpowers: https://github.com/obra/superpowers
+- Superpowers Codex plugin manifest: https://github.com/obra/superpowers/blob/main/.codex-plugin/plugin.json

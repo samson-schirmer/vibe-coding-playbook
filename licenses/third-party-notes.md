@@ -13,3 +13,4 @@
 - Bklit UI chart components are described as MIT licensed; Bklit Studio is proprietary.
 - Aceternity has its own license for downloaded or purchased items. Check the current license before copying.
 - Mobbin, Refero, Recent, and Manus should be treated as reference services unless explicit reuse rights are granted.
+- Superpowers is MIT licensed, but prefer installing it as a maintained Codex plugin instead of copying its skills into this repo.
