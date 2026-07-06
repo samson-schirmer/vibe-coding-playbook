@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Coding Playbook"
+  short_description: "Route UI work through the playbook."
+  default_prompt: "Use vibe-coding-playbook to choose relevant design and UI skills."
