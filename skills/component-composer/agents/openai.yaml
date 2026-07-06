@@ -1,0 +1,3 @@
+display_name: Component Composer
+short_description: Choose the right UI component source.
+default_prompt: Use component-composer to choose the right UI component source.

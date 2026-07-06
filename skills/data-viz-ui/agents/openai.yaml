@@ -1,0 +1,4 @@
+interface:
+  display_name: "Data Viz UI"
+  short_description: "Build dashboard and chart interfaces with Bklit-style patterns."
+  default_prompt: "Use data-viz-ui to design and implement charts or dashboards."

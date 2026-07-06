@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Research First"
+  short_description: "Research real product references before building UI."
+  default_prompt: "Use design-research-first to plan and build this interface from real references."

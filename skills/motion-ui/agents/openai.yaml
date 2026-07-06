@@ -1,0 +1,4 @@
+interface:
+  display_name: "Motion UI"
+  short_description: "Build polished React UI animation with Motion."
+  default_prompt: "Use motion-ui to add polished, accessible animation."
