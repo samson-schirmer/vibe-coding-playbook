@@ -24,7 +24,9 @@ Use this skill to pick the right component source instead of mixing libraries ca
 - Normalize styling to the project tokens after import.
 - Remove unused effects, dependencies, and demo-only copy.
 - Verify responsive behavior and keyboard accessibility.
+- For no-build, single-file targets (inline CSS/JS, no CDN), do not install React/Tailwind libraries directly. Use them as design sources and port the one piece you need to vanilla per the adaptation recipe.
 
 ## References
 
-Read `references/source-decisions.md` before adding a new component source.
+- Read `references/source-decisions.md` before adding a new component source.
+- Read `references/using-kokonut-and-bklit.md` before pulling or adapting Kokonut UI or Bklit UI components (install recipes, catalogs, React-to-vanilla adaptation, attribution).

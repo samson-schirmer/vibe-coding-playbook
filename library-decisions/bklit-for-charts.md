@@ -14,4 +14,8 @@
 
 ## License Note
 
-Bklit UI chart components are described as MIT licensed; Bklit Studio is proprietary. Do not redistribute Studio code.
+Bklit UI chart components are verified MIT (© uixmat); Bklit Studio is proprietary. Do not redistribute Studio code.
+
+## Build-Ready Guide
+
+For install recipes, the full chart catalog, and the React-to-vanilla adaptation recipe, see `skills/component-composer/references/using-kokonut-and-bklit.md`.

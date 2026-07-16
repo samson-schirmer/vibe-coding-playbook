@@ -14,7 +14,9 @@ Check the Aceternity license before copying or redistributing components.
 
 Best for open-source Tailwind, shadcn/ui, and Motion components that can be adapted into app UI.
 
-The Kokonut UI repository states it is MIT licensed.
+The Kokonut UI repository is verified MIT (© kokonutUI); all components on kokonutui.com are free. Kokonut UI Pro (kokonutui.pro) is the paid tier — reference-only.
+
+For install recipes, the component catalog, and the React-to-vanilla adaptation recipe, see `skills/component-composer/references/using-kokonut-and-bklit.md`.
 
 ## Rule
 
