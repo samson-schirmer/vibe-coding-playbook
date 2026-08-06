@@ -1,0 +1,4 @@
+interface:
+  display_name: "Velocity Excalidraw"
+  short_description: "Create Velocity-styled Excalidraw diagrams"
+  default_prompt: "Use $velocity-excalidraw to create a Velocity-styled product workflow diagram."
