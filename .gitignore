@@ -1,3 +1,7 @@
 # Vibe setup (regenerable - see tools/vibe-setup.sh)
 .vibe/
 .github/skills/
+
+# Julie Dashboard — contains real unreleased internal campaign data.
+# Built locally, never committed to this public repo.
+projects/julie-dashboard/
