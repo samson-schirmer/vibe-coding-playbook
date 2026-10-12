@@ -17,3 +17,14 @@
 - Manus: https://manus.im/app
 - Superpowers: https://github.com/obra/superpowers
 - Superpowers Codex plugin manifest: https://github.com/obra/superpowers/blob/main/.codex-plugin/plugin.json
+- The UX Laws in My CLAUDE.md: https://adamhayes.xyz/blog/the-ux-laws-in-my-claude-md
+- Componentry: https://componentry.dev/
+- OpenHands: https://www.openhands.dev/
+- Coolify: https://coolify.io/
+- Maxun: https://www.maxun.dev/
+- Crawl4AI: https://crawl4ai.com/
+- Langflow: https://www.langflow.org/
+- Browser Use: https://browser-use.com/
+- Ponytail: https://ponytail.dev/
+- pstack: https://github.com/cursor/plugins/tree/main/pstack
+- Cursor thermo-nuclear code quality review: https://github.com/cursor/plugins/blob/main/cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md

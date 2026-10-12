@@ -23,8 +23,9 @@ Use this skill before implementing UI when the work benefits from taste, pattern
    - component behavior
    - interaction tone
    - patterns to avoid
-4. Implement the UI with the host project's existing stack and conventions.
-5. Validate visually with screenshots when a browser or preview is available.
+4. Apply `references/ux-laws.md` to the proposed flow. Resolve conflicts in favor of clarity, accessibility, user control, and task completion.
+5. Implement the UI with the host project's existing stack and conventions.
+6. Validate visually with screenshots when a browser or preview is available.
 
 ## Rules
 
@@ -38,4 +39,5 @@ Use this skill before implementing UI when the work benefits from taste, pattern
 ## Reference Selection
 
 Read `references/source-map.md` when deciding which external source to consult.
+Read `../../references/ux-laws.md` when defining or reviewing a user flow, form, settings screen, onboarding experience, dashboard, or other interactive interface.
 Read a project `DESIGN.md` before external references when one exists.
