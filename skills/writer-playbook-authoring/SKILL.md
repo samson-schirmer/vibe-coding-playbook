@@ -90,6 +90,18 @@ playbook-export.zip
 3. `{index}` = 0-based position in the manifest `files` array
 4. Zip file names **must exactly match** `files[i].name` in the manifest
 
+> **Do NOT bundle skills inside the playbook zip.** The playbook import only reliably
+> accepts `manifest.json` + `files/`. Keep both `workflow.skills` and the top-level
+> `skills` array **empty (`[]`)**, and do not add a `skills/` directory to the zip.
+> Populating those arrays with a guessed schema (e.g. `{skill_id, slug, size, ...}`) or
+> adding `skills/{i}_{slug}.zip` entries causes a hard **"Failed to import playbooks.
+> Please check the file format and try again"** error — even when the JSON is valid.
+>
+> **Correct pattern for skill-backed playbooks:** import each skill **standalone** first
+> (Manage Writer → Skills → Import, or a GitHub URL), then have the playbook invoke them
+> by slug with `/skill-slug` in `workflow.template`. The slugs resolve at run time against
+> the already-imported skills — no bundling required.
+
 ### manifest.json essentials
 
 ```json
@@ -140,6 +152,11 @@ playbook-export.zip
 
 On import, Writer assigns new `file_id` values — the `name` field is what matters for matching.
 
+Keep `workflow.skills` and the top-level `skills` array **empty**. Both are populated by
+Writer's own export; supplying hand-authored skill entries triggers an import rejection
+(see the skills-bundling warning above). Import skills standalone and call them with
+`/skill-slug` instead.
+
 ### Template syntax (inside `workflow.template`)
 
 | Syntax | Purpose | Example |
@@ -161,6 +178,8 @@ Before zipping, verify:
 - [ ] All `[w-file](name)` references in `template` match a `files[].name`
 - [ ] All `[w-var](key)` references match a `workflow.variables[].key`
 - [ ] `file_type` and `size` are accurate for each file entry
+- [ ] `workflow.skills` and top-level `skills` are `[]`; no `skills/` folder in the zip (import skills standalone, invoke via `/skill-slug`)
+- [ ] `manifest.json` parses as valid JSON (valid JSON can still be rejected on schema — check the two items above first)
 - [ ] Steps are numbered and ordered logically
 
 ### Export/import limitations
@@ -169,6 +188,15 @@ Before zipping, verify:
 - **Export does NOT retain:** Knowledge Graphs, voice settings, triggers.
 
 After import, re-attach KGs, connectors, and triggers manually in Writer.
+
+### Common import failures
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `Failed to import playbooks. Please check the file format and try again.` | Hand-authored entries in the `skills` array and/or a `skills/` folder in the zip (bundled-skill schema is not import-supported) | Set both `skills` arrays to `[]`, remove the `skills/` folder; import skills standalone and call them via `/skill-slug` |
+| Same error, skills arrays already empty | `manifest.json` not at zip root, or a `files/{i}_{name}` mismatch | Move `manifest.json` to the root; make every `files/{i}_{name}` match `files[i].name` and index |
+| Import succeeds but a step can't find its skill | Skill not imported, or slug mismatch | Import the skill standalone; align `/slug` with the skill's frontmatter `name` |
+| Same error with a valid-looking manifest | An unexpected/extra top-level or `workflow` field | Bisect: start from the minimal manifest above and add fields back until the failure reappears |
 
 ## Advanced playbook patterns
 
@@ -213,7 +241,7 @@ When asked to build or import a playbook:
 
 1. Clarify objective, data sources, deliverables, and variables.
 2. Draft step plan with `###` headings; attach skills where steps need deep expertise.
-3. If producing a zip: build `manifest.json` + `files/` per the rules above; run the import pre-flight checklist.
+3. If producing a zip: build `manifest.json` + `files/` per the rules above (keep `skills` arrays empty — import skills standalone and call via `/skill-slug`); run the import pre-flight checklist.
 4. If creating in Writer UI: provide the description text ready to paste into **New playbook**.
 5. Recommend 2–3 test runs with varied inputs before publish/share.
 

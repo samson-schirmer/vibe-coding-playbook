@@ -161,7 +161,12 @@ Fix all errors before importing:
 
 **Alternative:** Paste a **GitHub URL** to a public repo containing the skill.
 
-**Bundled in a playbook export:** Skill zips live at `skills/{index}_{slug}.zip` inside the playbook zip, with manifest entries.
+**Use with a playbook:** Import the skill **standalone** (above), then reference it from
+the playbook's steps with `/skill-slug`. Do **not** try to bundle skill zips inside a
+playbook import zip — hand-authored `skills/{index}_{slug}.zip` entries plus a populated
+`skills` array cause the playbook import to fail (`Failed to import playbooks…`). Writer
+only produces that bundled layout on its own export; it is not a supported import shape.
+See `writer-playbook-authoring` → "Common import failures".
 
 ### Step 7 — Test
 
