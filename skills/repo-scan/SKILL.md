@@ -1,6 +1,6 @@
 ---
 name: repo-scan
-description: Use when the user drops a public GitHub repo URL and wants it swept for threats before forking, cloning, starring, or running it — "repo-scan <url>", "scan this repo", "is this repo safe", "check this before I fork it". Read-only supply-chain and malware sweep that ends in a GO / CAUTION / NO-GO verdict.
+description: Use when the user drops a public GitHub repo URL and wants it swept for threats before forking, cloning, starring, installing an AI skill, or running it — "repo-scan <url>", "scan this repo", "is this repo safe", "check this before I fork it". Read-only supply-chain, malware, and agent-skill sweep that ends in a GO / CAUTION / NO-GO verdict.
 ---
 
 # Repo Scan
@@ -24,7 +24,14 @@ Running untrusted code **is** the threat you are scanning for. Therefore:
   ships.
 - **Clone read-only, hooks disabled, shallow, into a throwaible temp dir.**
   Use: `git -c core.hooksPath=/dev/null clone --depth 1 --no-tags <url> <tmp>`.
-- **Only the clone + GitHub API recon may touch the network** for the target.
+- **Only the clone + GitHub API recon may touch the network** for the target by
+  default. SkillSpector's OSV lookup is the sole optional exception and requires
+  explicit user approval; it sends dependency coordinates, not file contents.
+- **Never install or update a scanner during a scan.** Use only tools already
+  installed and previously approved in the environment.
+- **Never give target content to a remote scanner or LLM.** SkillSpector must
+  receive the local clone path and run with `--no-llm`; never give it the target
+  URL, because that would perform a second clone.
 - **Never open the repo in a way that auto-runs tasks** (no dev containers, no
   editor "run on open", no `npm run`).
 - If any check would require executing target code, **skip it and flag it** —
@@ -78,26 +85,86 @@ All run in static, non-building modes:
 - **Dependency CVEs:** `osv-scanner --recursive "$TMP/repo"`.
 - **SAST / malicious patterns:** `semgrep --config auto --error "$TMP/repo"`.
 
-### 5. Agent inspection (always — fills gaps, adds context)
+### 5. Detect agent surfaces and run SkillSpector when safe
+
+Treat the repository as an agent/skill repository when it contains one or more
+of these surfaces:
+
+- `SKILL.md`, `.claude/skills/`, `.agents/skills/`, `.opencode/skills/`, or
+  equivalent agent instruction bundles.
+- MCP server or tool definitions, MCP manifests/configuration, or code that
+  exposes tools to an agent.
+- Agent prompts paired with executable scripts, tool permissions, memory,
+  hooks, triggers, or autonomous actions.
+
+If no agent surface exists, record `SkillSpector: not applicable` and continue.
+If one exists:
+
+1. Check `command -v skillspector`. If absent, do not install it; record
+   `SkillSpector: unavailable` and manually cover its vectors in step 6.
+2. Use only a previously reviewed, pinned installation. Record the installed
+   version in the report. If its provenance or version is unknown, skip it and
+   explain why.
+3. SkillSpector `--no-llm` still attempts an OSV.dev lookup containing package
+   names and versions. Run it only when either:
+   - outbound network is technically blocked for that process, accepting
+     SkillSpector's offline fallback coverage; or
+   - the user explicitly approves dependency-coordinate egress to
+     `api.osv.dev`.
+4. Scan the existing local clone, never the repository URL:
+
+```bash
+skillspector scan "$TMP/repo" --no-llm --format json
+```
+
+Do not rely on the exit code alone: code `0` includes both `SAFE` and `CAUTION`,
+code `1` means `DO_NOT_INSTALL`, and code `2` means scan failure. Parse the JSON
+recommendation and findings. Record whether OSV used live or fallback coverage
+when the output makes that known.
+
+SkillSpector is a specialized evidence source, not the final decision-maker:
+
+- Triage every hit against the actual file and context. Its test fixtures,
+  documentation examples, and security-rule corpora commonly contain inert
+  malicious-looking text.
+- Map each confirmed issue's severity into this skill's scoring rubric. Do not
+  import SkillSpector's aggregate score because its weights differ.
+- Merge duplicate findings by root cause. A SkillSpector exfiltration hit and a
+  manual finding for the same code count once, at the highest justified
+  severity.
+- A SkillSpector `SAFE` result never overrides repository-level findings.
+
+### 6. Agent inspection (always — fills gaps, adds context)
 Regardless of which tools ran, inspect the cloned tree yourself for the full
 vector list below. Read files; never execute them. For any vector a tool
 already covered, confirm/triage its hits rather than re-deriving.
 
-### 6. Triage & score
+For agent surfaces, manually cover SkillSpector's core gaps or validate its
+results: prompt injection, instruction override, anti-refusal, data
+exfiltration, credential access, excessive agency, unsafe output handling,
+system-prompt leakage, memory poisoning, tool misuse, self-modification,
+persistence, trigger abuse, MCP least privilege, and MCP tool poisoning.
+
+### 7. Triage & score
 - Prune obvious false positives (placeholder secrets like `AKIAIOSFODNN7EXAMPLE`,
   `changeme`, example/docs fixtures) — lower their confidence.
 - Escalate context: an install hook that fetches+executes remote code is
   `critical`, not `medium`.
 - Roll findings up to a verdict using the rubric below.
 
-### 7. Report
+### 8. Report
 - Write a concise findings summary.
+- State each scanner's status: `ran`, `unavailable`, `not applicable`, `failed`,
+  or `skipped for safety`, including SkillSpector version and scan mode when it
+  ran.
+- Distinguish repository-wide findings from agent-skill findings while applying
+  one unified score and verdict.
 - Optionally render a standalone HTML report to
   `outputs/<owner>-<repo>-threat-report.html` if the user wants a shareable file.
 - Give the **one-paragraph chat verdict**: the badge (GO / CAUTION / NO-GO),
   the top 3 findings, and one-line reasoning.
 
-### 8. Cleanup
+### 9. Cleanup
 Remove the temp clone: `rm -rf "$TMP"`.
 
 ---
@@ -114,6 +181,9 @@ Remove the temp clone: `rm -rf "$TMP"`.
 | **CI/CD & Actions** | Malicious workflows, `pull_request_target` misuse, unpinned 3rd-party actions | read `.github/workflows/*` for `pull_request_target`, secrets exposure, `@main`/floating tags | high |
 | **Obfuscation / suspicious blobs** | Base64/hex blobs, minified payloads, unexplained binaries | entropy scan, `file` on binaries, look for committed `.exe`/`.so`/packed JS | medium |
 | **Destructive / telemetry ops** | `rm -rf`, crypto-miners, calls to odd hosts, silent data collection | grep for destructive commands, unknown network hosts, miner signatures | high |
+| **Agent instruction attacks** | Prompt injection, safety override, context leakage, memory poisoning, trigger abuse | SkillSpector when safely available; manually inspect skill and prompt files | medium→critical |
+| **Excessive agency / tool misuse** | Unbounded actions, unsafe model output reaching tools, self-modification, persistence | inspect agent permissions, tool calls, output validation, hooks, and human approval gates | high→critical |
+| **MCP security** | Missing or wildcard permissions, poisoned tool descriptions, behavior mismatch, unauthenticated exposure | inspect MCP manifests, tool metadata, server binding/auth, and implementation | medium→high |
 | **Trust signals** | Repo age, star/fork anomalies, ownership churn | GitHub API recon (step 2) | low→medium |
 
 For any vector where a scanner was unavailable **or** produced no hits but the
@@ -156,3 +226,5 @@ workflow and postinstall are reviewed.
 
 Keep it honest: if recon was degraded (offline, tool missing, clone blocked),
 say so and flag reduced confidence rather than overstating a clean result.
+If SkillSpector did not run, state that plainly; never imply its specialized
+agent-skill coverage was automated when it was performed manually.
